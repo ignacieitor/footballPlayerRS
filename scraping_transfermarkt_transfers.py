@@ -221,7 +221,7 @@ def main():
         # Cargar datos de los valores de mercado de Transfermarkt
         iSeason = int(season)
         data = pd.read_csv(os.path.join(dataDir,
-                            "fbref_" + str(iSeason-1) + "_" + str(iSeason) + "_transfermarkt.csv"), encoding='utf8')
+                            "fbref_transfermarkt_" + str(iSeason-1) + "_" + str(iSeason) + ".csv"), encoding='utf8')
 
         # Crear directorio de salida
         if not os.path.exists(os.path.dirname(resultFilePath)):
@@ -315,7 +315,8 @@ def main():
         print("Finished!!! Player data transfers obtained and saved to '" + resultFilePath + "'!")
         driver.quit()
     else:
-        print("Command error. It must be executed with 'scraping_transfermarkt_transfers 'webDriverExePath' 'link_to_the_league_season' 'resultsFilePath''")
+        print("Command error. It must be executed with 'scraping_transfermarkt_transfers 'webDriverExePath' "
+              "'link_to_the_transfer_league_season' 'season' 'fbref_tmarkt_data_path' 'resultsFilePath''")
 
 if __name__ == "__main__":
     main()

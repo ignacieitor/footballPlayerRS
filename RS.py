@@ -3,6 +3,8 @@ from tkinter.font import Font
 import pandas as pd
 import numpy as np
 import sys
+import os
+
 from sklearn import preprocessing
 from sklearn.metrics.pairwise import cosine_similarity
 from pycaret.regression import *
@@ -16,6 +18,12 @@ from pandastable import Table, config
 # Constantes con los pesos de los dos modelos
 SIMILARITY_IMPORTANCE = 0.99
 VALORATION_IMPORTANCE = 0.01
+
+# Minimo valor de tasa de acierto de fichaje para considerarlo relevante
+RELEVANT_SUCCESS_RATE = 0.9
+# Minimo numero de partidos para considerar a un jugador importante y
+# asi poder tenerlo en cuenta para evaluar las recomendaciones
+MINIMUM_MATCHES_KEY_PLAYER = 15
 
 # Funcion que dado un jugador busca por similaridad el id
 def findPlayerId(df, playerName, playerSquad):
@@ -192,7 +200,7 @@ def getSimilarPlayers(df, playerId, k):
     df_top_k = top_k_similares(cos_sims, data, playerId, k)
 
     # Cargar el modelo predictivo del valor de mercado
-    Pred_Value_model = load_model('./Models/model_210810')
+    Pred_Value_model = load_model('./Models/model_210810', verbose=False)
 
     # Predecir valoracion
     df_top_k_value = calculate_market_value(Pred_Value_model, df_top_k)
@@ -209,7 +217,7 @@ def main():
     root = Tk()
     root.title("Football Player RS")
     photo = PhotoImage(file="app_icon.png")
-    root.iconphoto(False, photo)
+    root.iconphoto(True, photo)
     windowWidth = 800
     windowHeight = 500
     root.geometry('{}x{}'.format(windowWidth, windowHeight))
@@ -231,9 +239,11 @@ def main():
     e = StringVar()
     Entry(root, textvariable=e, width=100).place(x=20,y=25)
     # TODO: Eliminar esta asignacion. Solo esta para agilizar las pruebas
-    e.set("D:/Nacho/Universidad/UNIR/Cuatrimestre 2/TFM/PyCharm/Transfermarkt/fbref_2020_2021_transfermarkt.csv")
+    e.set("D:/Nacho/Universidad/UNIR/Cuatrimestre 2/TFM/PyCharm/Transfermarkt/fbref_transfermarkt_2017_2018.csv")
     # Variable global para el dataset
     data = None
+    # Variable global para la ruta del dataset cargado
+    dataPath = None
 
     # Evento del boton de seleccionar el dataset
     def btn_select_data_clicked():
@@ -243,10 +253,11 @@ def main():
 
     # Evento del boton de cargar el dataset
     def btn_load_data_clicked():
-        file = e.get()
+        global dataPath
+        dataPath = e.get()
         try:
             global data
-            data = pd.read_csv(file, encoding="utf8")
+            data = pd.read_csv(dataPath, encoding="utf8")
             comboSquads['values'] = sorted(data["Squad"].unique())
             comboSquads.current(0)
         except:
@@ -327,6 +338,69 @@ def main():
     # Boton para realizar la recomendacion
     Button(root, text="Show recommended players", width=23, bg='#0052cc', fg='#ffffff',
            command=btn_show_similar_players_clicked).place(x=300, y=120)
+
+    # Evento del boton de evaluar SR
+    def btn_evaluate_rs_clicked():
+        relevant_recs = 0
+        global dataPath
+        try:
+            # Recoger los fichajes de un año determinado
+            if dataPath != None:
+                # Coger la temporada que finaliza para poder recoger despues los fichajes de ese año
+                season = dataPath.split(".")[0][-4:]
+                parent = os.path.dirname(dataPath)
+                transfers_df = pd.read_csv(os.path.join(parent, "transfermarkt_transfers_" + season + ".csv"), encoding="utf8")
+                print(season + " TRANSFERS EVALUATION")
+                print("-------------------------")
+                # Por cada jugador fichado, obtener el club que ficha y la posicion
+                for i in range(len(transfers_df)):
+                    try:
+                        relevant = False
+                        playerIn = transfers_df.loc[i, "Player"]
+                        squadIn = transfers_df.loc[i, "SquadIn"]
+                        positionIn = transfers_df.loc[i, "Pos"]
+                        print("Player " + str(i+1) + " from " + str(len(transfers_df)) + " - " + playerIn + "(" + squadIn + "):", end='')
+                        # Hacer filtro en los datos del año anterior por club y posicion de antes
+                        # Y que sean de los que más juegan (mas de n partidos completos por año)
+                        global data
+
+                        playersOut = data.loc[(data["Squad"]==squadIn) & (data["Pos"]==positionIn) &
+                                              (data["Min/90"] > MINIMUM_MATCHES_KEY_PLAYER) ]
+
+                        # Recorrer todos los jugadores encontrados y hacer recomendaciones sobre ellos
+                        for j in range(len(playersOut)):
+                            # Recoger nombre y covertirlo a ID
+                            playerOut = playersOut.iloc[j]["Player"]
+                            playerOutId = getPlayerId(data, playerOut, squadIn)
+                            df_rec = getSimilarPlayers(data, playerOutId, 500)
+
+                            # Buscar jugador en las recomendaciones
+                            playerFound = df_rec.loc[df_rec["Player"] == playerIn]
+                            if len(playerFound)>0:
+                                successRate = playerFound["Success%"].values[0]
+                                # Si el valor de acierto de fichaje es superior a X, se considera relevante
+                                if successRate > RELEVANT_SUCCESS_RATE:
+                                    relevant = True
+                                    print("YES (" + playerOut + " - " + str(round(successRate,2)) + ")")
+                                    break
+
+                        if relevant:
+                            # Añadir una recomendacion relevante
+                            relevant_recs = relevant_recs + 1
+                        else:
+                            print("NO")
+                    except:
+                        print("Error processing player " + str(i + 1) + " from " + str(len(transfers_df)))
+
+                # Calcular precision (relevantes / total de fichajes)
+                # precision = relevant_recs / len(transfers_df)
+                # messagebox.showinfo('Precision', str(precision))
+        except:
+            messagebox.showerror('Error', 'Dataset cannot be loaded for the evaluation')
+
+    # Boton para realizar la evaluacion
+    Button(root, text="Evaluate RS", width=23, bg='#0052cc', fg='#ffffff',
+           command=btn_evaluate_rs_clicked).place(x=500, y=120)
 
     root.mainloop()
 

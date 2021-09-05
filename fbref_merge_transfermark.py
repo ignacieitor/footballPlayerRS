@@ -23,7 +23,7 @@ def addMarketValue(dataFbrPath, dataTmarktPath, season):
     # dataJoined.dropna(subset=["Pos"], inplace=True)
 
     # Guardar en disco
-    joinedFilePath = os.path.join(dataTmarktPath, "fbref_" + season + "_transfermarkt.csv")
+    joinedFilePath = os.path.join(dataTmarktPath, "fbref_transfermarkt_" + season + ".csv")
     dataJoined.to_csv(joinedFilePath, index=False)
 
     return 0
