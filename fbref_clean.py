@@ -5,11 +5,10 @@ import pandas as pd
 from difflib import SequenceMatcher
 from functools import lru_cache
 from pycountry import countries
+from unidecode import unidecode
 
 # Mapeo de los nombres que vienen de la pagina
 # al ISO-3166-1 ALPHA-3 (con la excepcion de Reino Unido)
-from unidecode import unidecode
-
 COUNTRY_MAP = {
     'ANG': 'AGO', # Angola
     'CGO': 'COG', # Republic of the Congo

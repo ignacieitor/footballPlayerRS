@@ -15,9 +15,8 @@ def addMarketValue(dataFbrPath, dataTmarktPath, season):
     df_tm = df_tm.sort_values('LastClub').drop_duplicates(subset=['Player', 'Born', 'Nation'], keep='last')
 
     # Mergear los datos de ambas tablas con la idea de actualizar correctamente liga y club
-    df_fbr.drop(['Comp', 'Squad', 'Nation'], axis=1, inplace=True)
-    # dataJoined = pd.merge(df_fbr, df_tm[["Player", "Born", "Nation", "Comp", "Squad", "Value"]], how='outer', on=["Player", "Born", "Nation"])
-    dataJoined = pd.merge(left = df_fbr, right = df_tm[["Player", "Born", "Nation", "Comp", "Squad", "Value"]],
+    df_fbr.drop(['Comp', 'Squad', 'Nation', 'Pos'], axis=1, inplace=True)
+    dataJoined = pd.merge(left = df_fbr, right = df_tm[["Player", "Pos", "Born", "Nation", "Comp", "Squad", "Value"]],
                           how = "left", left_on=["Player", "Born"], right_on=["Player", "Born"])
 
     # Eliminar los jugadores que no jugaron ningun minuto
