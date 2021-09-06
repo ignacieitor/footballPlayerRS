@@ -20,7 +20,7 @@ SIMILARITY_IMPORTANCE = 0.99
 VALORATION_IMPORTANCE = 0.01
 
 # Minimo valor de tasa de acierto de fichaje para considerarlo relevante
-RELEVANT_SUCCESS_RATE = 0.9
+RELEVANT_SUCCESS_RATE = 0.90
 # Minimo numero de partidos para considerar a un jugador importante y
 # asi poder tenerlo en cuenta para evaluar las recomendaciones
 MINIMUM_MATCHES_KEY_PLAYER = 15
@@ -220,39 +220,65 @@ def getSimilarPlayers(df, playerId, k):
 
     return final_recommendations
 
-def calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k):
+def calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k, max_success):
     relevant = False
+    max_successRate = 0
+    max_successRatePlayer = ""
     # Hacer filtro en los datos del año anterior por club y posicion de antes
     # Y que sean de los que más juegan (mas de n partidos completos por año)
     playersOut = dfStats.loc[(dfStats["Squad"] == squadIn) & (dfStats["Pos"] == positionIn) &
                              (dfStats["Min/90"] > MINIMUM_MATCHES_KEY_PLAYER)]
-    # Recorrer todos los jugadores encontrados y hacer recomendaciones sobre ellos
-    for j in range(len(playersOut)):
-        # Recoger nombre y covertirlo a ID
-        playerOut = playersOut.iloc[j]["Player"]
-        playerOutId = getPlayerId(dfStats, playerOut, squadIn)
-        df_rec = getSimilarPlayers(dfStats, playerOutId, top_k)
 
-        # Buscar jugador en las recomendaciones
-        playerFound = df_rec.loc[df_rec["Player"] == playerIn]
-        if len(playerFound) > 0:
-            successRate = playerFound["Success%"].values[0]
-            # Si el valor de acierto de fichaje es superior a X, se considera relevante
-            if successRate > RELEVANT_SUCCESS_RATE:
-                relevant = True
-                print("YES (" + playerOut + " - " + str(round(successRate, 2)) + ")")
-                break
+    if max_success:
+        # Recorrer todos los jugadores encontrados y hacer recomendaciones sobre ellos
+        for j in range(len(playersOut)):
+            # Recoger nombre y covertirlo a ID
+            playerOut = playersOut.iloc[j]["Player"]
+            playerOutId = getPlayerId(dfStats, playerOut, squadIn)
+            df_rec = getSimilarPlayers(dfStats, playerOutId, top_k)
+
+            # Buscar jugador en las recomendaciones
+            playerFound = df_rec.loc[df_rec["Player"] == playerIn]
+            if len(playerFound) > 0:
+                successRate = playerFound["Success%"].values[0]
+                # Si se supero el maximo conseguido hasta ahora
+                if successRate > max_successRate:
+                    max_successRate = successRate
+                    max_successRatePlayer = playerOut
+        # Si el valor de acierto de fichaje es superior a X, se considera relevante
+        if max_successRate > RELEVANT_SUCCESS_RATE:
+            relevant = True
+            print("YES (" + max_successRatePlayer + " - " + str(round(max_successRate, 2)) + ")")
+    else:
+        # Recorrer todos los jugadores encontrados y hacer recomendaciones sobre ellos
+        for j in range(len(playersOut)):
+            # Recoger nombre y covertirlo a ID
+            playerOut = playersOut.iloc[j]["Player"]
+            playerOutId = getPlayerId(dfStats, playerOut, squadIn)
+            df_rec = getSimilarPlayers(dfStats, playerOutId, top_k)
+
+            # Buscar jugador en las recomendaciones
+            playerFound = df_rec.loc[df_rec["Player"] == playerIn]
+            if len(playerFound) > 0:
+                successRate = playerFound["Success%"].values[0]
+                # Si el valor de acierto de fichaje es superior a X, se considera relevante
+                if successRate > RELEVANT_SUCCESS_RATE:
+                    max_successRate = max_successRate
+                    max_successRatePlayer = playerOut
+                    relevant = True
+                    print("YES (" + playerOut + " - " + str(round(successRate, 2)) + ")")
+                    break
 
     if not relevant:
         print("NO")
 
-    return relevant
+    return relevant, max_successRatePlayer, max_successRate
 
 def evaluate_transfers(dfStats, dfTransfers, season, top_k):
     print(season + " TRANSFERS EVALUATION")
     print("-------------------------")
     dfResults = dfTransfers.copy()
-    dfResults["Success%"] = False
+    dfResults["Relevant"] = False
     # Por cada jugador fichado, obtener el club que ficha y la posicion
     for i in range(len(dfTransfers)):
         try:
@@ -262,7 +288,7 @@ def evaluate_transfers(dfStats, dfTransfers, season, top_k):
             print("Player " + str(i + 1) + " from " + str(
                 len(dfTransfers)) + " - " + playerIn + "(" + squadIn + "):", end='')
             # Calcular si el fichaje es una recomendacion relevante por el sistema
-            dfResults.at[i, 'Relevant'] = calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k)
+            dfResults.at[i, ['Relevant', 'RelevantPlayer', 'RelevantSuccess%']] = calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k, True)
         except:
             print("Error processing player " + str(i + 1) + " from " + str(len(dfTransfers)))
     return dfResults
