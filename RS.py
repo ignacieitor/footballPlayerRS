@@ -1,11 +1,12 @@
-from tkinter.font import Font
-
-import pandas as pd
-import numpy as np
-import sys
 import os
+from datetime import datetime
+from math import sqrt
 
-from sklearn import preprocessing
+import matplotlib.pyplot as plt
+import seaborn as sns
+
+from sklearn import preprocessing, metrics
+from sklearn.metrics import confusion_matrix, classification_report
 from sklearn.metrics.pairwise import cosine_similarity
 from pycaret.regression import *
 from difflib import SequenceMatcher
@@ -20,12 +21,13 @@ SIMILARITY_IMPORTANCE = 0.99
 VALORATION_IMPORTANCE = 0.01
 
 # Minimo valor de tasa de acierto de fichaje para considerarlo relevante
-RELEVANT_SUCCESS_RATE = 0.90
+RELEVANT_SUCCESS_RATE = 0.85
 # Minimo numero de partidos para considerar a un jugador importante y
 # asi poder tenerlo en cuenta para evaluar las recomendaciones
 MINIMUM_MATCHES_KEY_PLAYER = 15
 # Top K de jugadores recomendados durante la evaluacion
-TOP_K_EVALUATION = 500
+# De momento coger todos
+TOP_K_EVALUATION = 3000 # 500
 
 # Variable global para el dataset
 data = None
@@ -199,28 +201,52 @@ def calculate_success_rate(player):
     # return player["Similarity%"] * SIMILARITY_IMPORTANCE + val * VALORATION_IMPORTANCE
     return player["Similarity%"] * SIMILARITY_IMPORTANCE + player["Valoration"] * VALORATION_IMPORTANCE
 
+def undumify_position(player):
+    position = ""
+    if player["Pos_GK"]:
+        position = "GK"
+    elif player["Pos_DF"]:
+        position = "DF"
+    elif player["Pos_MF"]:
+        position = "MF"
+    elif player["Pos_FW"]:
+        position = "FW"
+    return position
+
 def getSimilarPlayers(df, playerId, k):
+    # print("start getSimilarPlayers - " + str(datetime.now()))
     # Crear la matriz de similaridad
     cos_sims = create_sim_matrix(df)
+    # print("after create_sim_matrix - " + str(datetime.now()))
 
     # Obtener lista de jugadores similares
     df_top_k = top_k_similares(cos_sims, df, playerId, k)
+    # print("after top_k_similares - " + str(datetime.now()))
 
     # Cargar el modelo predictivo del valor de mercado
     Pred_Value_model = load_model('./Models/model_210810', verbose=False)
-
+    # print("after load_model - " + str(datetime.now()))
     # Predecir valoracion
     df_top_k_value = calculate_market_value(Pred_Value_model, df_top_k)
+    # print("after calculate_market_value - " + str(datetime.now()))
 
     # Calcular el porcentaje de acierto (ponderando similaridad + valoracion)
     df_top_k_value["Success%"] = df_top_k_value.apply(lambda row: calculate_success_rate(row), axis=1)
 
+    # Crear nuevamente la columna posicion
+    # df_top_k_value["Pos"] = df_top_k_value.apply(lambda row: undumify_position(row), axis=1)
+
     # Ordenar
     final_recommendations = df_top_k_value.sort_values(["Success%"], ascending=False)[["Player", "Squad", "Similarity%", "Value", "Predicted Value", "Valoration", "Success%"]]
+    # final_recommendations = df_top_k_value.sort_values(["Success%"], ascending=False)[
+    #     ["Player", "Pos", "Squad", "Similarity%", "Value", "Predicted Value", "Valoration", "Success%"]]
 
+    # print("exit getSimilarPlayers - " + str(datetime.now()))
     return final_recommendations
 
-def calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k, max_success):
+# Este metodo calcula la relevancia de solo los jugadores titulares de la misma posicion
+# y devuelve el de mayor relevancia
+def calculate_relevance_old(dfStats, playerIn, squadIn, positionIn, top_k, max_success):
     relevant = False
     max_successRate = 0
     max_successRatePlayer = ""
@@ -228,7 +254,8 @@ def calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k, max_succe
     # Y que sean de los que más juegan (mas de n partidos completos por año)
     playersOut = dfStats.loc[(dfStats["Squad"] == squadIn) & (dfStats["Pos"] == positionIn) &
                              (dfStats["Min/90"] > MINIMUM_MATCHES_KEY_PLAYER)]
-
+    # playersOut = dfStats.loc[(dfStats["Squad"] == squadIn) &
+    #                          (dfStats["Min/90"] > MINIMUM_MATCHES_KEY_PLAYER)]
     if max_success:
         # Recorrer todos los jugadores encontrados y hacer recomendaciones sobre ellos
         for j in range(len(playersOut)):
@@ -274,24 +301,193 @@ def calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k, max_succe
 
     return relevant, max_successRatePlayer, max_successRate
 
+# Este metodo calcula la relevancia de todos los jugadores titulares devolviendo una tabla
+# con todos los jugadores analizandos indicando si fue o no relevante la recomendacion
+def calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k):
+    dfPlayer = pd.DataFrame(columns = ["PlayerIn", "SquadIn", "PosIn", "PlayerOut", "PosOut",
+                                       "Relevant", "PredRelevant", "PredSuccess%"])
+    i = 0
+
+    # Hacer filtro en los datos del año anterior por club y que
+    # sean de los que más juegan (mas de n partidos completos por año)
+    playersOut = dfStats.loc[(dfStats["Squad"] == squadIn) &
+                             (dfStats["Min/90"] > MINIMUM_MATCHES_KEY_PLAYER)]
+
+    # Recorrer todos los jugadores encontrados y hacer recomendaciones sobre ellos
+    for j in range(len(playersOut)):
+        # Recoger nombre y covertirlo a ID
+        playerOut = playersOut.iloc[j]["Player"]
+        playerOutId = getPlayerId(dfStats, playerOut, squadIn)
+        positionOut = playersOut.iloc[j]["Pos"]
+        # Definimos ground truth (si misma posicion relevante, sino no)
+        relevant = True if positionOut == positionIn else False
+        # Hacer recomendacion
+        df_rec = getSimilarPlayers(dfStats, playerOutId, top_k)
+
+        predRelevant = False
+        predSuccessRate = 0
+        # Buscar jugador en las recomendaciones
+        playerFound = df_rec.loc[df_rec["Player"] == playerIn]
+        if len(playerFound) > 0:
+            predSuccessRate = playerFound["Success%"].values[0]
+            # Si el valor de acierto de fichaje es superior a X, se considera relevante
+            if predSuccessRate > RELEVANT_SUCCESS_RATE:
+                predRelevant = True
+
+        if predRelevant == True:
+            print("YES (" + playerOut + " - " + str(predSuccessRate) + ")")
+        else:
+            print("NO (" + playerOut + " - " + str(predSuccessRate) + ")")
+
+        dfPlayer.loc[i] = [playerIn, squadIn, positionIn, playerOut, positionOut,
+                           relevant, predRelevant, predSuccessRate]
+        i = i+1
+
+    return dfPlayer
+
 def evaluate_transfers(dfStats, dfTransfers, season, top_k):
     print(season + " TRANSFERS EVALUATION")
     print("-------------------------")
     dfResults = dfTransfers.copy()
-    dfResults["Relevant"] = False
+    dfPlayersResults = None
+    # dfResults["Relevant"] = False
     # Por cada jugador fichado, obtener el club que ficha y la posicion
     for i in range(len(dfTransfers)):
         try:
-            playerIn = dfTransfers.loc[i, "Player"]
+            playerIn = dfTransfers.loc[i, "PlayerIn"]
             squadIn = dfTransfers.loc[i, "SquadIn"]
-            positionIn = dfTransfers.loc[i, "Pos"]
+            positionIn = dfTransfers.loc[i, "PosIn"]
             print("Player " + str(i + 1) + " from " + str(
-                len(dfTransfers)) + " - " + playerIn + "(" + squadIn + "):", end='')
+                len(dfTransfers)) + " - " + playerIn + "(" + squadIn + "):")
             # Calcular si el fichaje es una recomendacion relevante por el sistema
-            dfResults.at[i, ['Relevant', 'RelevantPlayer', 'RelevantSuccess%']] = calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k, True)
+            # dfResults.at[i, ['Relevant', 'RelevantPlayer', 'RelevantSuccess%']] = calculate_relevance_old(dfStats, playerIn, squadIn, positionIn, top_k, True)
+            dfPlayerResults = calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k)
+            if dfPlayersResults is None:
+                dfPlayersResults = dfPlayerResults
+            else:
+                dfPlayersResults = dfPlayersResults.append(dfPlayerResults, ignore_index=True)
+
         except:
             print("Error processing player " + str(i + 1) + " from " + str(len(dfTransfers)))
+
+    # Merger dfResults con dfPlayerResults
+    dfResults = pd.merge(dfResults, dfPlayersResults, how='outer', on=["PlayerIn", "SquadIn", "PosIn"])
     return dfResults
+
+def plot_simple_matrix_confusion(cf_matrix):
+    sns.heatmap(cf_matrix, annot=True, xticklabels=['Positive', 'Negative'],
+                yticklabels=['Positive', 'Negative'])
+    plt.ylabel("Label")
+    plt.xlabel("Predicted")
+    plt.show()
+
+def make_confusion_matrix(cf,
+                          group_names=None,
+                          categories='auto',
+                          count=True,
+                          percent=True,
+                          cbar=True,
+                          xyticks=True,
+                          xyplotlabels=True,
+                          sum_stats=True,
+                          figsize=None,
+                          cmap='Blues',
+                          title=None):
+    '''
+    This function will make a pretty plot of an sklearn Confusion Matrix cm using a Seaborn heatmap visualization.
+    Arguments
+    ---------
+    cf:            confusion matrix to be passed in
+    group_names:   List of strings that represent the labels row by row to be shown in each square.
+    categories:    List of strings containing the categories to be displayed on the x,y axis. Default is 'auto'
+    count:         If True, show the raw number in the confusion matrix. Default is True.
+    normalize:     If True, show the proportions for each category. Default is True.
+    cbar:          If True, show the color bar. The cbar values are based off the values in the confusion matrix.
+                   Default is True.
+    xyticks:       If True, show x and y ticks. Default is True.
+    xyplotlabels:  If True, show 'True Label' and 'Predicted Label' on the figure. Default is True.
+    sum_stats:     If True, display summary statistics below the figure. Default is True.
+    figsize:       Tuple representing the figure size. Default will be the matplotlib rcParams value.
+    cmap:          Colormap of the values displayed from matplotlib.pyplot.cm. Default is 'Blues'
+                   See http://matplotlib.org/examples/color/colormaps_reference.html
+
+    title:         Title for the heatmap. Default is None.
+    '''
+
+    # CODE TO GENERATE TEXT INSIDE EACH SQUARE
+    blanks = ['' for i in range(cf.size)]
+
+    if group_names and len(group_names) == cf.size:
+        group_labels = ["{}\n".format(value) for value in group_names]
+    else:
+        group_labels = blanks
+
+    if count:
+        group_counts = ["{0:0.0f}\n".format(value) for value in cf.flatten()]
+    else:
+        group_counts = blanks
+
+    if percent:
+        group_percentages = ["{0:.2%}".format(value) for value in cf.flatten() / np.sum(cf)]
+    else:
+        group_percentages = blanks
+
+    box_labels = [f"{v1}{v2}{v3}".strip() for v1, v2, v3 in zip(group_labels, group_counts, group_percentages)]
+    box_labels = np.asarray(box_labels).reshape(cf.shape[0], cf.shape[1])
+
+    # CODE TO GENERATE SUMMARY STATISTICS & TEXT FOR SUMMARY STATS
+    if sum_stats:
+        # Accuracy is sum of diagonal divided by total observations
+        accuracy = np.trace(cf) / float(np.sum(cf))
+
+        # if it is a binary confusion matrix, show some more stats
+        if len(cf) == 2:
+            # Metrics for Binary Confusion Matrices
+            precision = cf[0, 0] / sum(cf[:, 0])
+            recall = cf[0, 0] / sum(cf[0, :])
+            f1_score = 2 * precision * recall / (precision + recall)
+            stats_text = "\n\nAccuracy={:0.3f}\nPrecision={:0.3f}\nRecall={:0.3f}\nF1 Score={:0.3f}".format(
+                accuracy, precision, recall, f1_score)
+        else:
+            stats_text = "\n\nAccuracy={:0.3f}".format(accuracy)
+    else:
+        stats_text = ""
+
+    # SET FIGURE PARAMETERS ACCORDING TO OTHER ARGUMENTS
+    if figsize == None:
+        # Get default figure size if not set
+        figsize = plt.rcParams.get('figure.figsize')
+
+    if xyticks == False:
+        # Do not show categories if xyticks is False
+        categories = False
+
+    # MAKE THE HEATMAP VISUALIZATION
+    plt.figure(figsize=figsize)
+    sns.heatmap(cf, annot=box_labels, fmt="", cmap=cmap, cbar=cbar, xticklabels=categories, yticklabels=categories)
+
+    if xyplotlabels:
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label' + stats_text)
+    else:
+        plt.xlabel(stats_text)
+
+    if title:
+        plt.title(title)
+
+    plt.show()
+
+# Funcion que dados dos dataframe de predicciones y resultados esperados
+# calculara las metricas más comunes como MAE, MSE y RMSE
+def get_standard_metrics(preds, actuals):
+    p = preds.values.flatten()
+    a = actuals.values.flatten()
+
+    mae = metrics.mean_absolute_error(p, a)
+    mse = metrics.mean_squared_error(p, a)
+    rmse = sqrt(mse)
+
+    return mae, mse, rmse
 
 def main():
     root = Tk()
@@ -427,19 +623,40 @@ def main():
                 df_results.to_csv(resultsFilePath, index=False)
                 print("Evaluation for " + season + " transfers done!!")
             else:
-                # Si no se selecciono el año en cuestion, evaluar todos los años
-                for i in range(2017, 2021):
-                    season = str(i+1)
+                confirm = messagebox.askyesnocancel(
+                    title="Question",
+                    message="Do you want only get metrics?",
+                    default=messagebox.YES)
+                if confirm:
+                    season = "2018"
                     parent = ".//Transfermarkt"
-                    transfers_df = pd.read_csv(os.path.join(parent, "transfermarkt_transfers_" + season + ".csv"),
+                    results_df = pd.read_csv(os.path.join(parent, "results_rs_" + season + ".csv"),
                                                encoding="utf8")
-                    data_df = pd.read_csv(os.path.join(parent, "fbref_transfermarkt_" + str(i) + "_" + str(season) + ".csv"),
-                                               encoding="utf8")
-                    df_results = evaluate_transfers(data_df, transfers_df, season, TOP_K_EVALUATION)
-                    # Guardar en disco
-                    resultsFilePath = os.path.join(parent, "results_rs_" + season + ".csv")
-                    df_results.to_csv(resultsFilePath, index=False)
-                    print("Evaluation for " + season + " transfers done!!")
+                    results_same_pos_df = results_df.loc[results_df["PosIn"] == results_df["PosOut"]]
+                    get_standard_metrics(results_same_pos_df["PredSuccess%"], pd.Series([RELEVANT_SUCCESS_RATE]).repeat(len(results_same_pos_df)))
+                    # Get the confusion matrix
+                    # cf_matrix = confusion_matrix(results_df["Relevant"], results_df["PredRelevant"], labels=[1,0])
+                    # labels = ["TP", "FN", "FP", "TN"]
+                    # categories = ["Relevant", "No Relevant"]
+                    # make_confusion_matrix(cf_matrix, group_names=labels, categories=categories, percent=False)
+
+                elif confirm is None:
+                    print("Press CANCEL")
+                else:
+                    print("Press NO")
+                    # # Si no se selecciono el año en cuestion, evaluar todos los años
+                    # for i in range(2017, 2021):
+                    #     season = str(i+1)
+                    #     parent = ".//Transfermarkt"
+                    #     transfers_df = pd.read_csv(os.path.join(parent, "transfermarkt_transfers_" + season + ".csv"),
+                    #                                encoding="utf8")
+                    #     data_df = pd.read_csv(os.path.join(parent, "fbref_transfermarkt_" + str(i) + "_" + str(season) + ".csv"),
+                    #                                encoding="utf8")
+                    #     df_results = evaluate_transfers(data_df, transfers_df, season, TOP_K_EVALUATION)
+                    #     # Guardar en disco
+                    #     resultsFilePath = os.path.join(parent, "results_rs_" + season + ".csv")
+                    #     df_results.to_csv(resultsFilePath, index=False)
+                    #     print("Evaluation for " + season + " transfers done!!")
         except:
             messagebox.showerror('Error', 'Dataset cannot be loaded for the evaluation')
 

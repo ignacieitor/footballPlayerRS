@@ -229,7 +229,7 @@ def main():
 
         if not os.path.exists(resultFilePath):
             with open(resultFilePath, "w", encoding='utf8') as f:
-                f.write("SquadIn,Player,Nation,Pos,Value,SquadOut,Fee\n")
+                f.write("SquadIn,PlayerIn,NationIn,PosIn,Value,SquadOut,Fee\n")
 
         # Navegar a la pagina
         # driver.get('https://www.transfermarkt.es/laliga/startseite/wettbewerb/ES1/plus/?saison_id='+season)
@@ -300,7 +300,7 @@ def main():
 
                                 # Evaluar si se puede añadir el fichaje (si hay datos)
                                 if canAddTransfer(data, squadIn, player, nation, pos, squadOut):
-                                    # SquadIn, Player, Pos, Nation, Value, SquadOut, Fee
+                                    # SquadIn, PlayerIn, PosIn, Nation, Value, SquadOut, Fee
                                     playerData = squadIn + "," + player + "," + nation + "," + pos + "," + value + "," + \
                                                  squadOut + "," + fee + "\n"
                                     print(".", end='')
