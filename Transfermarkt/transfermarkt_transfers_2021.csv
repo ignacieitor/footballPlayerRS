@@ -1,4 +1,4 @@
-SquadIn,PlayerInNationIn,PosIn,Value,SquadOut,Fee
+SquadIn,PlayerIn,NationIn,PosIn,Value,SquadOut,Fee
 Atlético de Madrid,Rodrigo de Paul,ARG,MF,40000000,Udinese Calcio,35000000
 Atlético de Madrid,Matheus Cunha,BRA,FW,30000000,Hertha BSC,30000000
 FC Barcelona,Emerson Royal,BRA,DF,25000000,Real Betis Balompié,14000000
@@ -9,3 +9,153 @@ Real Madrid,Eduardo Camavinga,FRA,MF,55000000,Stade Rennais FC,31000000
 Real Madrid,David Alaba,AUT,DF,55000000,Bayern Munich,NA
 Sevilla FC,Rafa Mir,ESP,FW,12000000,Wolverhampton Wanderers,16000000
 Sevilla FC,Thomas Delaney,DNK,MF,15000000,Borussia Dortmund,6000000
+Sevilla FC,Ludwig Augustinsson,SWE,DF,10000000,SV Werder Bremen,5500000
+Sevilla FC,Marko Dmitrovic,SRB,GK,8000000,SD Eibar,NA
+Sevilla FC,Erik Lamela,ARG,FW,16000000,Tottenham Hotspur,NA
+Real Sociedad,Mathew Ryan,AUS,GK,6000000,Brighton & Hove Albion,NA
+Villarreal CF,Boulaye Dia,SEN,FW,14000000,Stade Reims,12000000
+Villarreal CF,Aïssa Mandi,DZA,DF,8000000,Real Betis Balompié,NA
+Real Betis Balompié,Germán Pezzella,ARG,DF,7500000,ACF Fiorentina,3500000
+Real Betis Balompié,Youssouf Sabaly,SEN,DF,6500000,FC Girondins Bordeaux,NA
+Real Betis Balompié,Rui Silva,PRT,GK,12000000,Granada CF,NA
+Granada CF,Rubén Rochina,ESP,FW,2800000,Levante UD,NA
+Granada CF,Carlos Bacca,COL,FW,1800000,Villarreal CF,NA
+Granada CF,Sergio Escudero,ESP,DF,2500000,Sevilla FC,NA
+Granada CF,Ricard Sánchez,ESP,DF,1500000,Atlético de Madrid B,NA
+Celta de Vigo,Javi Galán,ESP,DF,6000000,SD Huesca,4000000
+Cádiz CF,Rubén Sobrino,ESP,FW,1500000,Valencia CF,NA
+CA Osasuna,Kike García,ESP,FW,2800000,SD Eibar,NA
+CA Osasuna,Javi Martínez,ESP,MF,1200000,CA Osasuna Promesas,NA
+Levante UD,Roberto Soldado,ESP,FW,1200000,Granada CF,500000
+Levante UD,Shkodran Mustafi,DEU,DF,2500000,FC Schalke 04,NA
+Valencia CF,Marcos André,BRA,FW,3500000,Real Valladolid CF,8500000
+Valencia CF,Dimitri Foulquier,GLP,DF,3500000,Granada CF,2500000
+Getafe CF,Jakub Jankto,CZE,MF,11000000,UC Sampdoria,6000000
+Getafe CF,Carles Aleñá,ESP,MF,15000000,FC Barcelona,5000000
+Getafe CF,Stefan Mitrovic,SRB,DF,2200000,RC Strasbourg Alsace,1000000
+Getafe CF,Miguel Rubio,ESP,DF,150000,Getafe CF B,NA
+Elche CF,Lucas Pérez,ESP,FW,3000000,Deportivo Alavés,NA
+Elche CF,Omar Mascarell,ESP,MF,4500000,FC Schalke 04,NA
+Elche CF,Pedro Bigas,ESP,DF,1200000,SD Eibar,NA
+Arsenal FC,Ben White,ENG,DF,28000000,Brighton & Hove Albion,58500000
+Arsenal FC,Martin Ødegaard,NOR,MF,40000000,Real Madrid,35000000
+Arsenal FC,Aaron Ramsdale,ENG,GK,12000000,Sheffield United,28000000
+Arsenal FC,Takehiro Tomiyasu,JPN,DF,20000000,Bologna FC 1909,18600000
+Aston Villa,Leon Bailey,JAM,FW,35000000,Bayer 04 Leverkusen,32000000
+Aston Villa,Danny Ings,ENG,FW,22000000,Southampton FC,29420000
+Aston Villa,Ashley Young,ENG,DF,1000000,Inter Milan,NA
+Brighton & Hove Albion,Marc Cucurella,ESP,MF,20000000,Getafe CF,18000000
+Burnley FC,Maxwel Cornet,CIV,DF,12000000,Olympique Lyon,15000000
+Chelsea FC,Romelu Lukaku,BEL,FW,100000000,Inter Milan,115000000
+Chelsea FC,Trevoh Chalobah,ENG,DF,3500000,Chelsea FC U23,NA
+Crystal Palace,Joachim Andersen,DNK,DF,22000000,Olympique Lyon,17500000
+Everton FC,Demarai Gray,ENG,FW,8000000,Bayer 04 Leverkusen,2000000
+Everton FC,Andros Townsend,ENG,FW,7000000,Crystal Palace,NA
+Leeds United,Daniel James,WAL,FW,18000000,Manchester United,29100000
+Leeds United,Jack Harrison,ENG,FW,15000000,Manchester City,12800000
+Leicester City,Boubakary Soumaré,FRA,MF,28000000,LOSC Lille,20000000
+Leicester City,Jannik Vestergaard,DNK,DF,18000000,Southampton FC,17600000
+Leicester City,Ryan Bertrand,ENG,DF,8000000,Southampton FC,NA
+Liverpool FC,Ibrahima Konaté,FRA,DF,35000000,RB Leipzig,40000000
+Manchester City,Jack Grealish,ENG,FW,65000000,Aston Villa,117500000
+Manchester United,Jadon Sancho,ENG,FW,100000000,Borussia Dortmund,85000000
+Manchester United,Raphaël Varane,FRA,DF,70000000,Real Madrid,40000000
+Manchester United,Cristiano Ronaldo,PRT,FW,45000000,Juventus FC,15000000
+Newcastle United,Joe Willock,ENG,MF,16000000,Arsenal FC,29400000
+Southampton FC,Romain Perraud,FRA,DF,8000000,Stade Brestois 29,12000000
+Southampton FC,Lyanco,BRA,DF,5000000,Torino FC,7500000
+Southampton FC,Theo Walcott,ENG,FW,5000000,Everton FC,NA
+Tottenham Hotspur,Bryan Gil,ESP,FW,30000000,Sevilla FC,25000000
+Tottenham Hotspur,Emerson Royal,BRA,DF,25000000,FC Barcelona,25000000
+Tottenham Hotspur,Pape Sarr,SEN,MF,10000000,FC Metz,16900000
+West Ham United,Kurt Zouma,FRA,DF,32000000,Chelsea FC,35000000
+Wolverhampton Wanderers,Rayan Aït Nouri,FRA,DF,18000000,SCO Angers,11100000
+Inter Milan,Matteo Darmian,ITA,DF,7000000,Parma Calcio 1913,2500000
+Inter Milan,Alex Cordaz,ITA,GK,500000,FC Crotone,NA
+Inter Milan,Hakan Calhanoglu,TUR,MF,35000000,AC Milan,NA
+Inter Milan,Edin Dzeko,BIH,FW,4000000,AS Roma,NA
+AC Milan,Fikayo Tomori,ENG,DF,28000000,Chelsea FC,29200000
+AC Milan,Mike Maignan,FRA,GK,25000000,LOSC Lille,13000000
+AC Milan,Yacine Adli,FRA,MF,9000000,FC Girondins Bordeaux,8000000
+AC Milan,Fodé Ballo-Touré,SEN,DF,6500000,AS Monaco,5000000
+AC Milan,Olivier Giroud,FRA,FW,4000000,Chelsea FC,1000000
+Atalanta BC,Juan Musso,ARG,GK,20000000,Udinese Calcio,20000000
+Atalanta BC,Davide Zappacosta,ITA,DF,8000000,Chelsea FC,9000000
+Atalanta BC,Matteo Lovato,ITA,DF,7000000,Hellas Verona,8000000
+SSC Napoli,Juan Jesus,BRA,DF,2000000,AS Roma,NA
+SS Lazio,Toma Basic,HRV,MF,9000000,FC Girondins Bordeaux,6860000
+SS Lazio,Felipe Anderson,BRA,FW,10000000,West Ham United,3000000
+SS Lazio,Elseid Hysaj,ALB,DF,13000000,SSC Napoli,NA
+SS Lazio,Pedro,ESP,FW,5000000,AS Roma,NA
+AS Roma,Tammy Abraham,ENG,FW,38000000,Chelsea FC,40000000
+AS Roma,Eldor Shomurodov,UZB,FW,7000000,Genoa CFC,17500000
+AS Roma,Rui Patrício,PRT,GK,10000000,Wolverhampton Wanderers,11500000
+US Sassuolo,Martin Erlic,HRV,DF,3000000,Spezia Calcio,3500000
+US Sassuolo,Maxime López,FRA,MF,10000000,Olympique Marseille,2000000
+Hellas Verona,Federico Ceccherini,ITA,DF,3500000,ACF Fiorentina,3000000
+Genoa CFC,Abdoulaye Touré,FRA,MF,4000000,FC Nantes,3500000
+Genoa CFC,Felipe Caicedo,ECU,FW,4000000,SS Lazio,2000000
+Genoa CFC,Salvatore Sirigu,ITA,GK,2500000,Torino FC,NA
+Genoa CFC,Nikola Maksimovic,SRB,DF,10000000,SSC Napoli,NA
+Bologna FC 1909,Kevin Bonifazi,ITA,DF,7000000,SPAL,6000000
+Bologna FC 1909,Adama Soumaoro,FRA,DF,4000000,LOSC Lille,2500000
+Udinese Calcio,Lazar Samardzic,DEU,MF,3000000,RB Leipzig,3000000
+Udinese Calcio,Marco Silvestri,ITA,GK,9000000,Hellas Verona,2500000
+Udinese Calcio,Brandon Soppy,FRA,DF,7000000,Stade Rennais FC,2000000
+Udinese Calcio,Daniele Padelli,ITA,GK,400000,Inter Milan,NA
+ACF Fiorentina,Nicolás González,ARG,FW,22000000,VfB Stuttgart,23500000
+ACF Fiorentina,Matija Nastasic,SRB,DF,5000000,FC Schalke 04,500000
+Cagliari Calcio,Keita Baldé,SEN,FW,8000000,AS Monaco,NA
+Bayern Munich,Dayot Upamecano,FRA,DF,60000000,RB Leipzig,42500000
+Bayern Munich,Marcel Sabitzer,AUT,MF,42000000,RB Leipzig,15000000
+RB Leipzig,André Silva,PRT,FW,45000000,Eintracht Frankfurt,23000000
+RB Leipzig,Mohamed Simakan,FRA,DF,18000000,RC Strasbourg Alsace,15000000
+Borussia Dortmund,Gregor Kobel,CHE,GK,13000000,VfB Stuttgart,15000000
+VfL Wolfsburg,Sebastiaan Bornauw,BEL,DF,12000000,1. FC Köln,13500000
+Eintracht Frankfurt,Christopher Lenz,DEU,DF,5000000,1.FC Union Berlin,NA
+Bayer 04 Leverkusen,Mitchel Bakker,NLD,DF,10000000,Paris Saint-Germain,7000000
+Bayer 04 Leverkusen,Robert Andrich,DEU,MF,7000000,1.FC Union Berlin,6500000
+1.FC Union Berlin,Kevin Möhwald,DEU,MF,3000000,SV Werder Bremen,1000000
+1.FC Union Berlin,Frederik Rönnow,DNK,GK,2500000,Eintracht Frankfurt,1000000
+1.FC Union Berlin,Andreas Voglsammer,DEU,FW,1700000,Arminia Bielefeld,NA
+1.FC Union Berlin,Bastian Oczipka,DEU,DF,600000,FC Schalke 04,NA
+1.FC Union Berlin,Levin Öztunali,DEU,MF,2500000,1.FSV Mainz 05,NA
+1.FC Union Berlin,Rani Khedira,DEU,MF,5000000,FC Augsburg,NA
+Borussia Mönchengladbach,Luca Netz,DEU,DF,5000000,Hertha BSC,4000000
+VfB Stuttgart,Florian Müller,DEU,GK,8000000,1.FSV Mainz 05,5000000
+VfB Stuttgart,Enzo Millot,FRA,MF,1000000,AS Monaco,1750000
+SC Freiburg,Maximilian Eggestein,DEU,MF,7500000,SV Werder Bremen,5000000
+TSG 1899 Hoffenheim,Sebastian Rudy,DEU,MF,3000000,FC Schalke 04,NA
+1.FSV Mainz 05,Anderson Lucoqui,AGO,DF,1000000,Arminia Bielefeld,NA
+Hertha BSC,Suat Serdar,DEU,MF,9000000,FC Schalke 04,8000000
+Hertha BSC,Marco Richter,DEU,FW,5000000,FC Augsburg,7100000
+Hertha BSC,Myziane Maolida,FRA,FW,7000000,OGC Nice,4000000
+Hertha BSC,Ishak Belfodil,DZA,FW,2800000,TSG 1899 Hoffenheim,500000
+Hertha BSC,Stevan Jovetic,MNE,FW,5000000,AS Monaco,NA
+Arminia Bielefeld,Alessandro Schöpf,AUT,MF,1500000,FC Schalke 04,NA
+1. FC Köln,Mark Uth,DEU,FW,3000000,FC Schalke 04,NA
+Paris Saint-Germain,Achraf Hakimi,MAR,DF,60000000,Inter Milan,60000000
+Paris Saint-Germain,Georginio Wijnaldum,NLD,MF,30000000,Liverpool FC,NA
+Paris Saint-Germain,Sergio Ramos,ESP,DF,10000000,Real Madrid,NA
+Paris Saint-Germain,Gianluigi Donnarumma,ITA,GK,65000000,AC Milan,NA
+Paris Saint-Germain,Lionel Messi,ARG,FW,80000000,FC Barcelona,NA
+AS Monaco,Jean Lucas,BRA,MF,4500000,Olympique Lyon,11000000
+AS Monaco,Ismail Jakobs,DEU,MF,7000000,1. FC Köln,6500000
+Olympique Lyon,Xherdan Shaqiri,CHE,FW,12000000,Liverpool FC,6000000
+Olympique Lyon,Damien Da Silva,FRA,DF,2000000,Stade Rennais FC,NA
+Olympique Marseille,Pol Lirola,ESP,DF,9000000,ACF Fiorentina,6500000
+Olympique Marseille,Salim Ben Seghir,FRA,FW,400000,OGC Nice B,NA
+Stade Rennais FC,Loïc Badé,FRA,DF,12000000,RC Lens,17000000
+Stade Rennais FC,Gaëtan Laborde,FRA,FW,15000000,Montpellier HSC,15000000
+Stade Rennais FC,Baptiste Santamaria,FRA,MF,15000000,SC Freiburg,14000000
+Stade Rennais FC,Birger Meling,NOR,DF,3500000,Nîmes Olympique,3000000
+Montpellier HSC,Valère Germain,FRA,FW,3000000,Olympique Marseille,NA
+Montpellier HSC,Mamadou Sakho,FRA,DF,6000000,Crystal Palace,NA
+OGC Nice,Andy Delort,DZA,FW,16000000,Montpellier HSC,10000000
+OGC Nice,Mario Lemina,GAB,MF,10000000,Southampton FC,5500000
+OGC Nice,Melvin Bard,FRA,DF,5000000,Olympique Lyon,3000000
+FC Metz,Nicolas de Préville,FRA,FW,3000000,FC Girondins Bordeaux,NA
+SCO Angers,Batista Mendy,FRA,MF,500000,FC Nantes,NA
+RC Strasbourg Alsace,Gerzino Nyamsi,FRA,DF,3500000,Stade Rennais FC,1500000
+RC Strasbourg Alsace,Maxime Le Marchand,FRA,DF,1500000,Fulham FC,NA
+RC Strasbourg Alsace,Kévin Gameiro,FRA,FW,3000000,Valencia CF,NA
