@@ -21,7 +21,7 @@ SIMILARITY_IMPORTANCE = 0.99
 VALORATION_IMPORTANCE = 0.01
 
 # Minimo valor de tasa de acierto de fichaje para considerarlo relevante
-RELEVANT_SUCCESS_RATE = 0.85
+RELEVANT_SUCCESS_RATE = 0.80
 # Minimo numero de partidos para considerar a un jugador importante y
 # asi poder tenerlo en cuenta para evaluar las recomendaciones
 MINIMUM_MATCHES_KEY_PLAYER = 15
@@ -303,7 +303,7 @@ def calculate_relevance_old(dfStats, playerIn, squadIn, positionIn, top_k, max_s
 
 # Este metodo calcula la relevancia de todos los jugadores titulares devolviendo una tabla
 # con todos los jugadores analizandos indicando si fue o no relevante la recomendacion
-def calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k):
+def calculate_relevance(dfStats, playerIn, squadIn, positionIn, squadOut, top_k):
     dfPlayer = pd.DataFrame(columns = ["PlayerIn", "SquadIn", "PosIn", "PlayerOut", "PosOut",
                                        "Relevant", "PredRelevant", "PredSuccess%"])
     i = 0
@@ -327,7 +327,12 @@ def calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k):
         predRelevant = False
         predSuccessRate = 0
         # Buscar jugador en las recomendaciones
-        playerFound = df_rec.loc[df_rec["Player"] == playerIn]
+        playerFound = df_rec.loc[(df_rec["Player"] == playerIn) & (df_rec["Squad"] == squadOut)]
+        # Si no se encontraba en el equipo anterior (quizas estuvo cedido en otro)
+        # Buscar jugador solo por nombre, por si estuviera en otro equipo el año anterior
+        if len(playerFound) == 0:
+            playerFound = df_rec.loc[df_rec["Player"] == playerIn]
+        # Si se encontro en las recomendaciones
         if len(playerFound) > 0:
             predSuccessRate = playerFound["Success%"].values[0]
             # Si el valor de acierto de fichaje es superior a X, se considera relevante
@@ -357,11 +362,12 @@ def evaluate_transfers(dfStats, dfTransfers, season, top_k):
             playerIn = dfTransfers.loc[i, "PlayerIn"]
             squadIn = dfTransfers.loc[i, "SquadIn"]
             positionIn = dfTransfers.loc[i, "PosIn"]
+            squadOut = dfTransfers.loc[i, "SquadOut"]
             print("Player " + str(i + 1) + " from " + str(
                 len(dfTransfers)) + " - " + playerIn + "(" + squadIn + "):")
             # Calcular si el fichaje es una recomendacion relevante por el sistema
             # dfResults.at[i, ['Relevant', 'RelevantPlayer', 'RelevantSuccess%']] = calculate_relevance_old(dfStats, playerIn, squadIn, positionIn, top_k, True)
-            dfPlayerResults = calculate_relevance(dfStats, playerIn, squadIn, positionIn, top_k)
+            dfPlayerResults = calculate_relevance(dfStats, playerIn, squadIn, positionIn, squadOut, top_k)
             if dfPlayersResults is None:
                 dfPlayersResults = dfPlayerResults
             else:
@@ -644,19 +650,19 @@ def main():
                     print("Press CANCEL")
                 else:
                     print("Press NO")
-                    # # Si no se selecciono el año en cuestion, evaluar todos los años
-                    # for i in range(2017, 2021):
-                    #     season = str(i+1)
-                    #     parent = ".//Transfermarkt"
-                    #     transfers_df = pd.read_csv(os.path.join(parent, "transfermarkt_transfers_" + season + ".csv"),
-                    #                                encoding="utf8")
-                    #     data_df = pd.read_csv(os.path.join(parent, "fbref_transfermarkt_" + str(i) + "_" + str(season) + ".csv"),
-                    #                                encoding="utf8")
-                    #     df_results = evaluate_transfers(data_df, transfers_df, season, TOP_K_EVALUATION)
-                    #     # Guardar en disco
-                    #     resultsFilePath = os.path.join(parent, "results_rs_" + season + ".csv")
-                    #     df_results.to_csv(resultsFilePath, index=False)
-                    #     print("Evaluation for " + season + " transfers done!!")
+                    # Si no se selecciono el año en cuestion, evaluar todos los años
+                    for i in range(2018, 2021):
+                        season = str(i+1)
+                        parent = ".//Transfermarkt"
+                        transfers_df = pd.read_csv(os.path.join(parent, "transfermarkt_transfers_" + season + ".csv"),
+                                                   encoding="utf8")
+                        data_df = pd.read_csv(os.path.join(parent, "fbref_transfermarkt_" + str(i) + "_" + str(season) + ".csv"),
+                                                   encoding="utf8")
+                        df_results = evaluate_transfers(data_df, transfers_df, season, TOP_K_EVALUATION)
+                        # Guardar en disco
+                        resultsFilePath = os.path.join(parent, "results_rs_" + season + ".csv")
+                        df_results.to_csv(resultsFilePath, index=False)
+                        print("Evaluation for " + season + " transfers done!!")
         except:
             messagebox.showerror('Error', 'Dataset cannot be loaded for the evaluation')
 
