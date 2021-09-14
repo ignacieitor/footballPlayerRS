@@ -21,7 +21,7 @@ SIMILARITY_IMPORTANCE = 0.99
 VALORATION_IMPORTANCE = 0.01
 
 # Minimo valor de tasa de acierto de fichaje para considerarlo relevante
-RELEVANT_SUCCESS_RATE = 0.80
+RELEVANT_SUCCESS_RATE = 0.85
 # Minimo numero de partidos para considerar a un jugador importante y
 # asi poder tenerlo en cuenta para evaluar las recomendaciones
 MINIMUM_MATCHES_KEY_PLAYER = 15
@@ -651,7 +651,7 @@ def main():
                 else:
                     print("Press NO")
                     # Si no se selecciono el año en cuestion, evaluar todos los años
-                    for i in range(2018, 2021):
+                    for i in range(2017, 2021):
                         season = str(i+1)
                         parent = ".//Transfermarkt"
                         transfers_df = pd.read_csv(os.path.join(parent, "transfermarkt_transfers_" + season + ".csv"),
